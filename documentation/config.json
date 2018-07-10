@@ -1,14 +1,15 @@
+
 {
     "Authors": [
-        "Scott Smereka"
+        "Scott Smereka",
+        "Jack Byrne",
+        "Nick Reno"
     ],
     "languages": [
         "en"
     ],
     "navigation": [
         {
-            "name": "Overview"
-        }, {
             "name": "Policy Table",
             "navigation": [
                 {
@@ -32,20 +33,9 @@
         }, {
             "name": "Policy Table Update"
         }, {
-            "name": "Getting Started",
-            "navigation": [
-                {
-                    "name": "Installation"
-                }, {
-                    "name": "API"
-                }, {
-                    "name": "Lifecycles"
-                }, {
-                    "name": "Custom Modules"
-                }, {
-                    "name": "Migration Scripts"
-                }
-            ]
+            "name": "SQL"
+        }, {
+            "name": "Granting Functional Groups"
         }
     ]
 }

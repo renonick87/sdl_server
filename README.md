@@ -10,15 +10,20 @@ SmartDeviceLink (SDL) is a standard set of protocols and messages that connect a
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=AzdQdSCS24M" target="_blank"><img src="http://i.imgur.com/nm8UujD.png?1" alt="SmartDeviceLink" border="10" /></a>
 
 ## SDL Server
-The SmartDeviceLink (SDL) server handles authentication, data collection, and basic configurations for SDL connected vehicles.  In general, these tasks are accomplished using JSON documents called Policy Tables, which the [SDL Core component](https://github.com/smartdevicelink/sdl_core) uses to validate messaging with connected applications. The Policy Tables are configured on the SDL server, downloaded through the SDL Proxy and passed along to [SDL Core](https://github.com/smartdevicelink/sdl_core).
+The SmartDeviceLink (SDL) server allows the automated construction of policy tables, which the [SDL Core component](https://github.com/smartdevicelink/sdl_core) uses to validate messaging with connected applications. The server communicates with SHAID to maintain updated information about application information and uses that information to help build appropriate policy table responses.
 
-> This implementation of SDL Server is a reference to help developers understand how SDL works.  It is **NOT** meant to be a production server.
+Depending on your needs, you may not require the use of the SDL Server. If you only want to permit all your apps using an sdl_core instance that you control, then you can edit the preloaded policy table to allow this. Edit the default permissions located in this line of the preloaded policy table: https://github.com/smartdevicelink/sdl_core/blob/master/src/appMain/sdl_preloaded_pt.json#L2273
+
+Change the contents of that array to include this instead: 
+`
+[“Base-4”, “Location-1", “Notifications”, “DrivingCharacteristics-3", “VehicleInfo-3”, “PropriataryData-1", “PropriataryData-2”, “ProprietaryData-3", “Emergency-1”, “Navigation-1", “Base-6”, “OnKeyboardInputOnlyGroup”, “OnTouchEventOnlyGroup”, “DiagnosticMessageOnly”, “DataConsent-2”, “BaseBeforeDataConsent”, “SendLocation”, “WayPoints”, “BackgroundAPT”]
+`
 
 # Getting Started
-A quick guide to setup SDL server can be found at <a href="https://smartdevicelink.com/guides/sdl-server/getting-started/" target="_blank">SmartDeviceLink.com</a>
+A quick guide to setup the SDL server can be found at <a href="https://smartdevicelink.com/en/guides/sdl-server/getting-started/installation/" target="_blank">SmartDeviceLink.com</a>
 
 ## Documentation
-All documentation can be found at <a href="https://smartdevicelink.com/docs/sdl-server/master/overview/" target="_blank">SmartDeviceLink.com</a>.
+All documentation can be found at <a href="https://smartdevicelink.com/en/guides/sdl-server/overview/" target="_blank">SmartDeviceLink.com</a>.
 
 ## Contribute
 If you have a suggestion or bug please submit an <a href="https://github.com/smartdevicelink/sdl_server/issues/new" target="_blank">issue</a>.  You can submit code using a pull request, but please follow the <a href="https://github.com/smartdevicelink/sdl_server/blob/master/CONTRIBUTING.md" target="_blank">contributing guidelines</a>.
