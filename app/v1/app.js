@@ -3,6 +3,9 @@ const helmet = require('helmet');
 let app = express();
 const path = require('path');
 
+const fs = require('fs');
+const pem = require('pem');
+
 //custom modules
 const config = require('../../settings'); //configuration module
 const log = require(`../../custom/loggers/${config.loggerModule}/index.js`);
@@ -72,6 +75,86 @@ function exposeRoutes () {
 	app.post('/module', auth.validateAuth, moduleConfig.post);
 	app.post('/module/promote', auth.validateAuth, moduleConfig.promote);
 	app.get('/about', auth.validateAuth, about.getInfo);
+	app.post('/certificate', sendCert);
+	app.post('/gen/certificate', createCert);
+}
+
+/*
+req.body.options object is optional, but could contain the following properties:
+country -> a CSR country field
+state -> a CSR state field
+locality -> a CSR locality field
+organization -> a CSR organization field
+organizationUnit -> a CSR organizational unit field
+commonName -> a CSR common name field (defaults to localhost)
+altNames -> a list (Array) of subjectAltNames in the subjectAltName field (optional)
+emailAddress -> a CSR email address field
+csrConfigFile -> a CSR config file
+*/
+function createCert(req, res, next){
+	let options = req.body.options;
+
+	return pem.createPrivateKey(2048, function(err, prKey){
+		if(err){
+			console.error(err);
+			return;
+		}
+		console.log("private key made");
+		return pem.createCSR({
+			clientKey: options.clientKey,
+			clientKeyPassword: options.clientKeyPassword,
+			country: options.country,
+			state: options.state,
+			locality: options.locality,
+			organization: options.organization,
+			organizationUnit: options.organizationUnit,
+			commonName: options.commonName
+		}, function(err1, data){
+			if(err1){
+				console.error(err1);
+				return;
+			}
+			console.log("client key made");
+			return pem.createCertificate({csr: data.csr, serviceKey: prKey.key}, function(err2, cert){
+				if(err2){
+					console.error(err2);
+					return;
+				}
+				console.log("certificate made");
+				return pem.createPkcs12(prKey.key, cert.certificate, options.clientKeyPassword, function(err3, pfx){
+					if(err3){
+						console.error(err3);
+						return;
+					}
+					console.log("pfx made");
+					return res.parcel.setStatus(200)
+						.setData(pfx.pkcs12.toString('base64'))
+						.deliver();
+				})
+			})	
+		})
+	});
+}
+
+function sendCert(req, res, next){
+		let appId = req.body.AppId;
+		let password = req.body.Password;
+
+		return fs.readFile(__dirname + "/../../customizable/certificates/" + appId + ".p12", function(err, pfx){
+			if (err){
+				console.error(err);
+				return;
+			}
+			return pem.readPkcs12(pfx, {p12Password: password}, function (er, cert){
+				if (er){
+					console.error(er);
+					return
+				}
+				return res.parcel.setStatus(200)
+					.setData(new Buffer(JSON.stringify(cert)).toString('base64'))
+					.deliver();
+			})
+		});
 }
 
 function updatePermissionsAndGenerateTemplates (next) {
